@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            font-family:Arial, Helvetica, sans-serif;
+        }
+        #table {
+            width: 800px;
+            border: 1px solid black;
+            border-spacing: 0;
+            margin: auto;
+            margin-top: 50px;
+        }
+
+        #table th,
+        #table td {
+            border: 1px solid black;
+            border-spacing: 0;
+        }
+    </style>
+    
+</head>
+
+<body>
+    <form id="form" method="post">
+        <label for="name">Imię
+            <input type="text" name="name" id="name">
+        </label>
+        <label for="surname">Nazwisko
+            <input type="text" name="surname" id="surname">
+        </label>
+        <label for="Wiek">Wiek
+            <input type="number" name="age" id="age" min="0" max="100">
+        </label>
+        <input type="submit" value="Dodaj">
+    </form>
+
+    <table id="table">
+        <tr>
+            <th>index</th>
+            <th>Imię</th>
+            <th>Nazwisko</th>
+            <th>Wiek</th>
+        </tr>
+    </table>
+
+    <script>
+        var url ='https://localhost:55555/people';
+        var form = document.getElementById("form");
+        var index = 0;
+
+        async function GetData(object){
+            const response = await fetch(url,{
+                    method :'POST',
+                    headers: {
+                        'Accept' : '*/*',
+                        'Content-Type': 'application/json',
+                    },
+                    body : JSON.stringify(object)
+                });
+                if(!response.ok){
+                    throw new Error(`Error status ${response.status}`);
+                }
+                const data = await response.json();
+                return data;
+        }
+        async function GetPeople(){
+            const response = await fetch(url,{
+                    method :'GET',
+                    mode :"cors",
+                    headers: {
+                        'Accept' : '*/*',
+                        'Content-Type': 'application/json',
+                    },
+                });
+                if(!response.ok){
+                    throw new Error(`Error status ${response.status}`);
+                }
+                const data = await response.json();
+                return data;
+        }
+
+        GetPeople().then(function(data){
+            data.people.forEach(person => {
+                document.getElementById("table").innerHTML +=
+                     `<tr><td class="id">${index++}</td>
+                        <td class="name">${person.name}</td>
+                        <td class="surname">${person.surname}</td>
+                        <td class="age">${person.age}</td></tr>`;
+            });
+        })
+
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+
+            var name = document.getElementById("name").value;
+            var surname = document.getElementById("surname").value;
+            var age = document.getElementById("age").value;
+
+            var object = {"name" : name, "surname":surname, "age":age}
+
+                GetData(object).then(data => {
+                    document.getElementById("table").innerHTML +=
+                     `<tr><td class="id">${index++}</td>
+                        <td class="name">${data.name}</td>
+                        <td class="surname">${data.surname}</td>
+                        <td class="age">${data.age}</td></tr>`;
+                })
+            });
+    </script>
+</body>
+
+</html>

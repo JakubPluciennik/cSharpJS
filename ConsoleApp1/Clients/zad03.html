@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            font-family:Arial, Helvetica, sans-serif;
+        }
+        #table {
+            width: 800px;
+            border: 1px solid black;
+            border-spacing: 0;
+            margin: auto;
+            margin-top: 50px;
+        }
+
+        #table th,
+        #table td {
+            border: 1px solid black;
+            border-spacing: 0;
+        }
+        #text-label{
+            display:none;
+        }
+    </style>
+    
+</head>
+
+<body>
+    <form id="form" method="post">
+        <label for="text" id="text-label"></label>
+        <input type="text" name="text" id="text">
+        <input type="submit" value="Dodaj">
+    </form>
+
+    <table id="table">
+        <tr>
+            <th>index</th>
+            <th>dane</th>
+        </tr>
+    </table>
+
+    <script>
+        var url ='https://localhost:55555/GetData';
+        var form = document.getElementById("form");
+        var index = 0;
+
+        async function GetData(text){
+            const response = await fetch(url,{
+                    method :'POST',
+                    mode :"cors",
+                    headers: {
+                        'Accept' : '*/*',
+                        'Content-Type': 'application/json',
+                    },
+                    body : JSON.stringify({ "value": text})
+                });
+                if(!response.ok){
+                    throw new Error(`Error status ${response.status}`);
+                }
+                const data = await response.json();
+                return data;
+        }
+
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+            var label = document.getElementById("text-label");
+            label.style.display = "none";
+            var text = document.getElementById("text").value;
+            if(!Number.isInteger(Number(text))) //tekst w polu text nie jest liczbą
+            {
+                label.style.display = "block";
+                label.style.color = "red";
+                label.innerHTML = "Nie jest to liczba";
+            }
+            else    //jeśli text jest liczbą
+            {
+                GetData(text).then(data => {
+                    document.getElementById("table").innerHTML += `<tr><td class="id">${index++}</td><td class="value">${data.value}</td></tr>`;
+                })
+                
+            }
+        });
+    </script>
+</body>
+
+</html>

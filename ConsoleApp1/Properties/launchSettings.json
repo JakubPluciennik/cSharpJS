@@ -1,0 +1,16 @@
+{
+
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=database.db"
+  },
+  "profiles": {
+    "ConsoleApp1": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:55555"
+    }
+  }
+}
