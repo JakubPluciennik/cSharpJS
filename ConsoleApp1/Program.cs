@@ -1,5 +1,6 @@
 ﻿using ConsoleApp1.Models;
 using FastEndpoints;
+using LiteDB;
 
 namespace ConsoleApp1
 {
@@ -18,16 +19,28 @@ namespace ConsoleApp1
                 string surname = surnames[r.Next(surnames.Length)];
                 int age = r.Next(18, 65);
 
-                people.Add(new Person {Name = name, Surname = surname, Age = age });
+                people.Add(new Person { Name = name, Surname = surname, Age = age });
             }
 
             return people;
         }
-        public static List<Person> people = GeneratePeople(100);
+
 
         static void Main(string[] args)
         {
-             
+            List<Person> people = GeneratePeople(100);
+
+            using (var db = new LiteDatabase(@"Database\database.db"))
+            {
+                var collection = db.GetCollection<Person>("people");
+                if (collection.Count()==0)
+                {
+                    for(int i=0; i< people.Count; i++)
+                    {
+                        collection.Insert(i, people[i]);
+                    }
+                }
+            }
 
             var builder = WebApplication.CreateBuilder();
             builder.Services.AddFastEndpoints();

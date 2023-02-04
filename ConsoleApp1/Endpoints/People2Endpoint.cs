@@ -2,6 +2,7 @@
 using ConsoleApp1.Requests;
 using ConsoleApp1.Responses;
 using FastEndpoints;
+using LiteDB;
 
 namespace ConsoleApp1.Endpoints
 {
@@ -17,7 +18,11 @@ namespace ConsoleApp1.Endpoints
         public override async Task HandleAsync(Person req, CancellationToken ct)
         {
             Person person = new Person { Age= req.Age , Name = req.Name, Surname = req.Surname};
-            Program.people.Add(person);
+            using (var db = new LiteDatabase(@"Database\database.db"))
+            {
+                var collection = db.GetCollection<Person>("people");
+                collection.Insert(collection.Count(), person);
+            }
 
             await SendAsync(new()
             {

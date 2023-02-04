@@ -2,6 +2,7 @@
 using ConsoleApp1.Requests;
 using ConsoleApp1.Responses;
 using FastEndpoints;
+using LiteDB;
 
 namespace ConsoleApp1.Endpoints
 {
@@ -16,16 +17,22 @@ namespace ConsoleApp1.Endpoints
 
         public override async Task HandleAsync(PersonRequest req, CancellationToken ct)
         {
-            Person response = Program.people[req.Id];
-
-
-            await SendAsync(new()
+            using (var db = new LiteDatabase(@"Database\database.db"))
             {
-                Age= response.Age,
-                Name= response.Name,
-                Surname= response.Surname,
-            }
+                var collection = db.GetCollection<Person>("people");
+
+                Person p = collection.FindById(req.Id);
+
+                PersonResponse response = new PersonResponse { Name = p.Name, Surname = p.Surname, Age = p.Age };
+
+                await SendAsync(new()
+                {
+                    Age = response.Age,
+                    Name = response.Name,
+                    Surname = response.Surname,
+                }
             , cancellation: ct);
+            }
         }
     }
 }
